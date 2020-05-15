@@ -11,8 +11,10 @@ const fs = require('fs');
 
 // Non-blocking, asynchronous code
 fs.readFile('./txt/start.txt', 'utf-8', (err, data1) => {
+  if (err) {
+    return console.log('ERROR!'); // run this by feeding a wrong file name
+  }
   console.log('Data1:', data1);
-  console.log('file was read');
 
   fs.readFile(`./txt/${data1}.txt`, 'utf-8', (err, data2) => {
     console.log('Data2:', data2);
