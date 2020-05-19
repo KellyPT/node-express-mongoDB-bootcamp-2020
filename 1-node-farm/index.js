@@ -37,12 +37,20 @@ const url = require('url');
 
 ///////////////////////////////////////
 // SERVER
+
+// this reading function will only execute once at the start of the application. therefore we don't need async code here.
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
+
 const server = http.createServer((req, res) => {
   const pathName = req.url;
   if (pathName === '/' || pathName === '/overview') {
     res.end('This is an overview');
   } else if (pathName === '/product') {
     res.end('This is product detail page!');
+  } else if (pathName === '/api') {
+    res.writeHead(200, { 'Content-type': 'application/json' });
+    res.end(data);
   } else {
     res.writeHead(404, {
       'Content-type': 'text/html',
