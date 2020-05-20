@@ -37,20 +37,65 @@ const url = require('url');
 
 ///////////////////////////////////////
 // SERVER
+const replaceTemplate = (template, productData) => {
+  let output = template.replace(/{%PRODUCT_NAME%}/g, productData.productName);
+  output = output.replace(/{%IMAGE%}/g, productData.image);
+  output = output.replace(/{%PRODUCT_QUANTITY%}/g, productData.quantity);
+
+  output = output.replace(/{%PRODUCT_PRICE%}/g, productData.price);
+  output = output.replace(/{%PRODUCT_ID%}/g, productData.id);
+  output = output.replace(/{%PRODUCT_ORIGIN%}/g, productData.from);
+  output = output.replace(/{%PRODUCT_NUTRIENTS%}/g, productData.nutrients);
+  output = output.replace(/{%PRODUCT_DESCRIPTION%}/g, productData.description);
+
+  if (!productData.organic) {
+    output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
+  }
+
+  return output;
+};
 
 // this reading function will only execute once at the start of the application. therefore we don't need async code here.
+const tempOverview = fs.readFileSync(
+  `${__dirname}/templates/template-overview.html`,
+  'utf-8'
+);
+const tempCard = fs.readFileSync(
+  `${__dirname}/templates/template-card.html`,
+  'utf-8'
+);
+const tempProduct = fs.readFileSync(
+  `${__dirname}/templates/template-product.html`,
+  'utf-8'
+);
+
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
   const pathName = req.url;
+
+  // overview page
   if (pathName === '/' || pathName === '/overview') {
-    res.end('This is an overview');
+    res.writeHead(200, { 'Content-type': 'text/html' });
+    const cardHtml = dataObj
+      .map((el) => replaceTemplate(tempCard, el))
+      .join('');
+
+    const output = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardHtml);
+
+    res.end(output);
+
+    // product page
   } else if (pathName === '/product') {
     res.end('This is product detail page!');
+
+    // api
   } else if (pathName === '/api') {
     res.writeHead(200, { 'Content-type': 'application/json' });
     res.end(data);
+
+    // not found
   } else {
     res.writeHead(404, {
       'Content-type': 'text/html',
