@@ -17,17 +17,21 @@ fs.readFile('test-file.txt', () => {
 
   process.nextTick(() => console.log('Process.nextTick'));
 
-  crypto.pbkdf2Sync('password', 'salt', 10000, 1024, 'sha512');
-  console.log(Date.now() - start, 'salt password encrypted');
+  crypto.pbkdf2('password', 'salt', 10000, 1024, 'sha512', () => {
+    console.log(Date.now() - start, 'salt password encrypted');
+  });
 
-  crypto.pbkdf2Sync('password', 'sugar', 10000, 1024, 'sha512');
-  console.log(Date.now() - start, 'sugar password encrypted');
+  crypto.pbkdf2('password', 'sugar', 10000, 1024, 'sha512', () => {
+    console.log(Date.now() - start, 'sugar password encrypted');
+  });
 
-  crypto.pbkdf2Sync('password', 'pepper', 10000, 1024, 'sha512');
-  console.log(Date.now() - start, 'pepper password encrypted');
+  crypto.pbkdf2('password', 'pepper', 10000, 1024, 'sha512', () => {
+    console.log(Date.now() - start, 'pepper password encrypted');
+  });
 
-  crypto.pbkdf2Sync('password', 'chilli', 10000, 1024, 'sha512');
-  console.log(Date.now() - start, 'chilli assword encrypted');
+  crypto.pbkdf2('password', 'chilli', 10000, 1024, 'sha512', () => {
+    console.log(Date.now() - start, 'chilli assword encrypted');
+  });
 });
 
 console.log('Hello from top level code');
