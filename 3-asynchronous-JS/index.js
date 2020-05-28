@@ -23,6 +23,25 @@ const writeFilePromise = (file, data) => {
   });
 };
 
+// Solution with async-await, try-catch
+const getDogPic = async () => {
+  try {
+    const data = await readFilePromise(`${__dirname}/dog.txt`);
+    console.log(`Breed: ${data}`);
+    const res = await superagent.get(
+      `https://dog.ceo/api/breed/${data}/images/random`
+    );
+    console.log(res.body.message);
+    await writeFilePromise('dog-img.txt', res.body.messsage);
+    console.log('Dog image saved to file!');
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+getDogPic();
+
+// Solution with Promises
 readFilePromise(`${__dirname}/dog.txt`)
   .then((data) => {
     console.log(`Breed: ${data}`);
