@@ -31,31 +31,50 @@ const getDogPic = async () => {
     const res = await superagent.get(
       `https://dog.ceo/api/breed/${data}/images/random`
     );
-    console.log(res.body.message);
-    await writeFilePromise('dog-img.txt', res.body.messsage);
+    console.log('img link', res.body.message);
+    await writeFilePromise('dog-img.txt', res.body.message);
     console.log('Dog image saved to file!');
   } catch (err) {
-    console.log(err);
+    throw err;
   }
+  return '2.COMPLETED: IMAGE READY';
 };
 
-getDogPic();
+// how to return values from async-await with then-catch
+// Solution 1:
+// getDogPic()
+//   .then((x) => console.log(x))
+//   .catch((err) => {
+//     console.log('ERROR!', err);
+//   });
+// Solution 2: IIFE with async-await so that we don't have to declare a new function name
+(async () => {
+  try {
+    console.log('1.START: Will get dog pics from API');
+    const result = await getDogPic(); // await keyword here will make sure the promise is fulfilled before the app moves to the next line of code
+    // getDogPic(); // this will happen after 2 console.log statements! because Node will execute top-level code first while waiting for Promises to be completed
+    console.log(result); // log out the return value of the promise
+    console.log('3.END: Done with getting dog pics');
+  } catch (err) {
+    console.log('ERROR!', err);
+  }
+})();
 
 // Solution with Promises
-readFilePromise(`${__dirname}/dog.txt`)
-  .then((data) => {
-    console.log(`Breed: ${data}`);
+// readFilePromise(`${__dirname}/dog.txt`)
+//   .then((data) => {
+//     console.log(`Breed: ${data}`);
 
-    return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`);
-  })
-  .then((res) => {
-    console.log(res.body.message);
+//     return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`);
+//   })
+//   .then((res) => {
+//     console.log(res.body.message);
 
-    return writeFilePromise('dog-img.txt', res.body.message);
-  })
-  .then(() => {
-    console.log('Dog image was saved to file!');
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+//     return writeFilePromise('dog-img.txt', res.body.message);
+//   })
+//   .then(() => {
+//     console.log('Dog image was saved to file!');
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
