@@ -1,6 +1,11 @@
 const express = require('express');
 const fs = require('fs');
+const morgan = require('morgan');
+
 const app = express();
+
+// 1. MIDDLEWARE
+app.use(morgan('dev'));
 
 app.use(express.json()); // middleware: function that can modify incoming request data
 
@@ -21,6 +26,7 @@ const tours = JSON.parse(
   )
 );
 
+// 2. ROUTE HANDLERS
 const getAllTours = (req, res) => {
   console.log(req.requestTime);
   res.status(200).json({
@@ -99,6 +105,42 @@ const deleteOneTour = (req, res) => {
   });
 };
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'this route is not yet defined!'
+  });
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'this route is not yet defined!'
+  });
+};
+
+const getOneUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'this route is not yet defined!'
+  });
+};
+
+const updateOneUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'this route is not yet defined!'
+  });
+};
+
+const removeOneUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'this route is not yet defined!'
+  });
+};
+
+// 3. ROUTES
 // List of routes using callbacks
 // app.get('/api/v1/tours', getAllTours);
 // app.get('/api/v1/tours/:id', getOneTour);
@@ -117,6 +159,19 @@ app
   .get(getOneTour)
   .patch(updateOneTour)
   .delete(deleteOneTour);
+
+app
+  .route('/api/v1/users')
+  .get(getAllUsers)
+  .post(createUser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getOneUser)
+  .patch(updateOneUser)
+  .delete(removeOneUser);
+
+// 4. START SERVER
 
 const port = 3000;
 app.listen(port, () => {
