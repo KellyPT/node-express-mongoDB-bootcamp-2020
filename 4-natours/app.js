@@ -11,7 +11,9 @@ app.use(express.json()); // middleware: function that can modify incoming reques
 
 // in Express, order is very important.
 app.use((req, res, next) => {
-  console.log('Hello from the middleware');
+  console.log(
+    'Hello from the middleware'
+  );
   next();
 });
 
@@ -49,7 +51,9 @@ const getOneTour = (req, res) => {
       message: 'Invalid tour ID'
     });
   }
-  const tour = tours.find((tour) => tour.id === id);
+  const tour = tours.find(
+    (tour) => tour.id === id
+  );
   console.log(tour);
   res.status(200).json({
     status: 'success',
@@ -60,8 +64,12 @@ const getOneTour = (req, res) => {
 };
 
 const createOneTour = (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+  const newId =
+    tours[tours.length - 1].id + 1;
+  const newTour = Object.assign(
+    { id: newId },
+    req.body
+  );
   tours.push(newTour);
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
@@ -78,7 +86,10 @@ const createOneTour = (req, res) => {
 };
 
 const updateOneTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
+  if (
+    req.params.id * 1 >
+    tours.length
+  ) {
     return res.status(404).json({
       status: 'failed',
       message: 'Invalid tour ID'
@@ -93,7 +104,10 @@ const updateOneTour = (req, res) => {
 };
 
 const deleteOneTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
+  if (
+    req.params.id * 1 >
+    tours.length
+  ) {
     return res.status(404).json({
       status: 'failed',
       message: 'Invalid tour ID'
@@ -108,35 +122,40 @@ const deleteOneTour = (req, res) => {
 const getAllUsers = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'this route is not yet defined!'
+    message:
+      'this route is not yet defined!'
   });
 };
 
 const createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'this route is not yet defined!'
+    message:
+      'this route is not yet defined!'
   });
 };
 
 const getOneUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'this route is not yet defined!'
+    message:
+      'this route is not yet defined!'
   });
 };
 
 const updateOneUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'this route is not yet defined!'
+    message:
+      'this route is not yet defined!'
   });
 };
 
 const removeOneUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'this route is not yet defined!'
+    message:
+      'this route is not yet defined!'
   });
 };
 
@@ -149,24 +168,30 @@ const removeOneUser = (req, res) => {
 // app.delete('/api/v1/tours/:id', deleteOneTour);
 
 // if we want to update version or resources' names, this is way easier:
-app
-  .route('/api/v1/tours')
+const tourRouter = express.Router();
+app.use('/api/v1/tours', tourRouter);
+
+tourRouter
+  .route('/')
   .get(getAllTours)
   .post(createOneTour);
 
-app
-  .route('/api/v1/tours/:id')
+tourRouter
+  .route('/:id')
   .get(getOneTour)
   .patch(updateOneTour)
   .delete(deleteOneTour);
 
-app
-  .route('/api/v1/users')
+const userRouter = express.Router();
+app.use('/api/v1/users', userRouter);
+
+userRouter
+  .route('/')
   .get(getAllUsers)
   .post(createUser);
 
-app
-  .route('/api/v1/users/:id')
+userRouter
+  .route('/:id')
   .get(getOneUser)
   .patch(updateOneUser)
   .delete(removeOneUser);
@@ -175,5 +200,7 @@ app
 
 const port = 3000;
 app.listen(port, () => {
-  console.log(`app running on port ${port}...`);
+  console.log(
+    `app running on port ${port}...`
+  );
 });
