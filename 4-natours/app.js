@@ -7,7 +7,14 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // 1. MIDDLEWARE
-app.use(morgan('dev'));
+console.log(
+  'Inside app.js:',
+  process.env.NODE_ENV
+);
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 app.use(express.json()); // middleware: function that can modify incoming request data
 
