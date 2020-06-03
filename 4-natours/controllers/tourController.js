@@ -6,6 +6,22 @@ const tours = JSON.parse(
   )
 );
 
+// use param middleware to validate ID before getting into each route, because this logic is reusable
+exports.checkID = (req, res, next, val) => {
+  console.log(
+    'checkID middleware',
+    `Tour ID: ${val}`
+  );
+  if (req.params.id * 1 > tours.length) {
+    // return keyword must be here to end the process after sending a response
+    return res.status(404).json({
+      status: 'failed',
+      message: 'Invalid tour ID'
+    });
+  }
+  next(); // always put this at the end of a middleware so that the request-response cycle could continue
+};
+
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
   res.status(200).json({
@@ -19,19 +35,9 @@ exports.getAllTours = (req, res) => {
 };
 
 exports.getOneTour = (req, res) => {
-  const id = req.params.id * 1; // convert string id to number id
-  console.log(id);
-  console.log(tours.length);
-  if (id >= tours.length) {
-    return res.status(404).json({
-      status: 'failed',
-      message: 'Invalid tour ID'
-    });
-  }
   const tour = tours.find(
-    (tour) => tour.id === id
+    (tour) => tour.id === req.params.id * 1
   );
-  console.log(tour);
   res.status(200).json({
     status: 'success',
     data: {
@@ -41,8 +47,7 @@ exports.getOneTour = (req, res) => {
 };
 
 exports.createOneTour = (req, res) => {
-  const newId =
-    tours[tours.length - 1].id + 1;
+  const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign(
     { id: newId },
     req.body
@@ -63,15 +68,6 @@ exports.createOneTour = (req, res) => {
 };
 
 exports.updateOneTour = (req, res) => {
-  if (
-    req.params.id * 1 >
-    tours.length
-  ) {
-    return res.status(404).json({
-      status: 'failed',
-      message: 'Invalid tour ID'
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -81,15 +77,6 @@ exports.updateOneTour = (req, res) => {
 };
 
 exports.deleteOneTour = (req, res) => {
-  if (
-    req.params.id * 1 >
-    tours.length
-  ) {
-    return res.status(404).json({
-      status: 'failed',
-      message: 'Invalid tour ID'
-    });
-  }
   res.status(204).json({
     status: 'success',
     data: null
