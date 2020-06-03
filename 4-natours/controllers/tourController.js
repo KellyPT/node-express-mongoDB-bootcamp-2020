@@ -6,6 +6,7 @@ const tours = JSON.parse(
   )
 );
 
+// 1. MIDDLEWARE
 // use param middleware to validate ID before getting into each route, because this logic is reusable
 exports.checkID = (req, res, next, val) => {
   console.log(
@@ -21,6 +22,18 @@ exports.checkID = (req, res, next, val) => {
   }
   next(); // always put this at the end of a middleware so that the request-response cycle could continue
 };
+
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'missing name or price'
+    });
+  }
+  next();
+};
+
+// 2. ROUTE HANDLERS
 
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
