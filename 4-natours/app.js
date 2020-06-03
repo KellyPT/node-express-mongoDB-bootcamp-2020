@@ -11,11 +11,11 @@ app.use(morgan('dev'));
 
 app.use(express.json()); // middleware: function that can modify incoming request data
 
+app.use(express.static(`${__dirname}/public`));
+
 // in Express, order is very important.
 app.use((req, res, next) => {
-  console.log(
-    'Hello from the middleware'
-  );
+  console.log('Hello from the middleware');
   next();
 });
 
@@ -24,7 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 2. ROUTE HANDLERS
+// 2. ROUTE HANDLERS : check controllers and routes folders
 
 // 3. ROUTES
 // List of routes using callbacks
