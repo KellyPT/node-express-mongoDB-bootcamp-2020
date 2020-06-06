@@ -22,6 +22,24 @@ mongoose
     );
   });
 
+const tourSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'A tour must have a name'], // error string, also called as validator
+    unique: true
+  },
+  price: {
+    type: Number,
+    required: [true, 'A tour must have a price']
+  },
+  rating: {
+    type: Number,
+    default: 4.5
+  }
+});
+
+const Tour = mongoose.model('Tour', tourSchema);
+
 // connecting to local database on local machine
 // mongoose
 //   .connect(process.env.DATABASE_LOCAL, {
