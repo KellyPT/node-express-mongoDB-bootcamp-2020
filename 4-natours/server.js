@@ -39,6 +39,23 @@ const tourSchema = new mongoose.Schema({
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
+// create an instance of Tour model
+const testTour = new Tour({
+  name: 'The Forest Hiker',
+  price: 497,
+  rating: 4.7
+});
+
+// interact with our database
+// save the document to database, which will return a promise
+testTour
+  .save()
+  .then((document) => {
+    console.log(document);
+  })
+  .catch((err) => {
+    console.log('ERROR! ', err);
+  });
 
 // connecting to local database on local machine
 // mongoose
