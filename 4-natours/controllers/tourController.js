@@ -6,19 +6,6 @@ const Tour = require('../models/tourModel');
 //   )
 // );
 
-// 1. MIDDLEWARE
-// use param middleware to validate ID before getting into each route, because this logic is reusable
-
-exports.checkBody = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'missing name or price'
-    });
-  }
-  next();
-};
-
 // 2. ROUTE HANDLERS
 
 exports.getAllTours = (req, res) => {
@@ -28,7 +15,7 @@ exports.getAllTours = (req, res) => {
     requestTime: req.requestTime,
     // results: tours.length, // usually included when we send an array object
     data: {
-      tours: tours
+      // tours: tours
     }
   });
 };
@@ -45,25 +32,25 @@ exports.getOneTour = (req, res) => {
   // });
 };
 
-exports.createOneTour = (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign(
-  //   { id: newId },
-  //   req.body
-  // );
-  // tours.push(newTour);
-  // fs.writeFile(
-  //   `${__dirname}/dev-data/data/tours-simple.json`,
-  //   JSON.stringify(tours),
-  //   (err) => {
-  //     res.status(201).json({
-  //       status: 'success',
-  //       data: {
-  //         tour: newTour
-  //       }
-  //     });
-  //   }
-  // );
+exports.createOneTour = async (req, res) => {
+  try {
+    // equivalent code:
+    // const newTour = new Tour({});
+    // newTour.save();
+    const newTour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour
+      }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'failed',
+      message: 'Error saving data'
+    });
+  }
 };
 
 exports.updateOneTour = (req, res) => {
