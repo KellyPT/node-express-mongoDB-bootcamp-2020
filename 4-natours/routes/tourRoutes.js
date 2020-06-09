@@ -5,14 +5,13 @@ const {
   getOneTour,
   updateOneTour,
   deleteOneTour,
-  checkID,
   checkBody
-} = require('./../controllers/tourController');
+} = require('../controllers/tourController');
 
 const router = express.Router();
 
 // middleware to validate params in request URL
-router.param('id', checkID);
+// router.param('id', checkID);
 
 router
   .route('/')
