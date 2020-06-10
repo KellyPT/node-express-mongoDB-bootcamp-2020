@@ -70,13 +70,28 @@ exports.createOneTour = async (req, res) => {
   }
 };
 
-exports.updateOneTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: `Tour ${req.params.id} updated`
-    }
-  });
+exports.updateOneTour = async (req, res) => {
+  try {
+    const updatedTour = await Tour.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true, // return the new updated document
+        runValidators: true
+      }
+    );
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: updatedTour
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: err
+    });
+  }
 };
 
 exports.deleteOneTour = (req, res) => {
