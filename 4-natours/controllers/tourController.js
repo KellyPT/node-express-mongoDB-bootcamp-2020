@@ -94,9 +94,16 @@ exports.updateOneTour = async (req, res) => {
   }
 };
 
-exports.deleteOneTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
+exports.deleteOneTour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success'
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'success',
+      message: 'Cannot delete this tour'
+    });
+  }
 };
