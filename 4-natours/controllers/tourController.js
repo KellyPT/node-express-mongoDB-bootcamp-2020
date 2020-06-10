@@ -65,7 +65,7 @@ exports.createOneTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'failed',
-      message: 'Error saving data'
+      message: err
     });
   }
 };
