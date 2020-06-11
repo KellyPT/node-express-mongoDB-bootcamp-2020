@@ -10,7 +10,37 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find(); // if we don't give any param, it will return all records
+    // SIMPLE WAY:
+    // inject Filters:
+    // const tours = await Tour.find({
+    //   duration: 5,
+    //   difficulty: 'easy'
+    // }); // if we don't give any param, it will return all records
+
+    // another way to inject Filters with Mongoose syntax
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    // SOPHISTICATED WAY:
+    // we need a hard copy here because don't want to modify the original req.query
+    const queryObj = { ...req.query };
+    const excludedFields = [
+      'page',
+      'sort',
+      'limit',
+      'fields'
+    ];
+    excludedFields.forEach(
+      (field) => delete queryObj[field]
+    );
+
+    const query = Tour.find(queryObj);
+
+    const tours = await query;
+
     res.status(200).json({
       status: 'Success',
       results: tours.length, // usually included when we send an array object
