@@ -62,7 +62,8 @@ const tourSchema = new mongoose.Schema({
   images: [String],
   createdAt: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
+    select: false // preventing this field from showing in API response
   },
   startDates: [Date]
 });
