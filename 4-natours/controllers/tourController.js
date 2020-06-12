@@ -46,8 +46,6 @@ exports.getAllTours = async (req, res) => {
 
     let query = Tour.find(JSON.parse(queryStr));
 
-    // console.log('req.query', req.query);
-
     // Sorting
     if (req.query.sort) {
       const sortBy = req.query.sort
@@ -67,6 +65,24 @@ exports.getAllTours = async (req, res) => {
     } else {
       query = query.select('-__v'); //add minus sign to include everything except the __v
     }
+
+    // Pagination
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      const page = req.query.page * 1 || 1;
+      const limit = req.query.limit * 1 || 100;
+      const skip = (page - 1) * limit;
+
+      if (skip >= numTours) {
+        throw new Error(
+          'This page does not exist'
+        );
+      }
+
+      query = query.skip(skip).limit(limit);
+    }
+
+    // Execute Query
     const tours = await query;
 
     res.status(200).json({
