@@ -17,25 +17,18 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    // SIMPLE WAY:
-    // inject Filters:
-    // const tours = await Tour.find({
-    //   duration: 5,
-    //   difficulty: 'easy'
-    // }); // if we don't give any param, it will return all records
+class APIFeatures {
+  // constructor: create an object from Mongoose query for reusability, and queryString getting from Express from the routes
+  constructor(query, queryStringFromExpress) {
+    this.queryForMongoose = query; // actually our model that we're gonna query
+    this.queryStringFromExpress = queryStringFromExpress;
+  }
 
-    // another way to inject Filters with Mongoose syntax
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    // SOPHISTICATED WAY:
+  filter() {
     // we need a hard copy here because don't want to modify the original req.query
-    const queryObj = { ...req.query };
+    const queryObj = {
+      ...this.queryStringFromExpress
+    };
     const excludedFields = [
       'page',
       'sort',
@@ -47,52 +40,83 @@ exports.getAllTours = async (req, res) => {
     );
 
     // Advanced filtering for greater than, lesser than
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(
+    let filteredQueryStr = JSON.stringify(
+      queryObj
+    );
+    filteredQueryStr = filteredQueryStr.replace(
       /\b(gte|gt|lte|lt)\b/g,
       (match) => `$${match}`
     );
 
-    let query = Tour.find(JSON.parse(queryStr));
+    this.queryForMongoose = this.queryForMongoose.find(
+      JSON.parse(filteredQueryStr)
+    );
 
-    // Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort
+    return this;
+  }
+
+  sort() {
+    if (this.queryStringFromExpress.sort) {
+      const sortBy = this.queryStringFromExpress.sort
         .split(',')
         .join(' ');
-      query = query.sort(sortBy); // to achieve this format query.sort('price ratingsAverage)
+      this.queryForMongoose = this.queryForMongoose.sort(
+        sortBy
+      ); // to achieve this format query.sort('price ratingsAverage)
     } else {
-      query = query.sort('-createdAt');
+      this.queryForMongoose = this.queryForMongoose.sort(
+        '-createdAt'
+      );
     }
 
-    // Field limiting
-    if (req.query.fields) {
-      const fields = req.query.fields
+    return this; // give access to the modified object
+  }
+
+  limitFields() {
+    if (this.queryStringFromExpress.fields) {
+      const fields = this.queryStringFromExpress.fields
         .split(',')
         .join(' '); // join with a space
-      query = query.select(fields);
+      this.queryForMongoose = this.queryForMongoose.select(
+        fields
+      );
     } else {
-      query = query.select('-__v'); //add minus sign to include everything except the __v
+      this.queryForMongoose = this.queryForMongoose.select(
+        '-__v'
+      ); //add minus sign to include everything except the __v
     }
 
-    // Pagination
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
+    return this;
+  }
+
+  paginate() {
+    const page =
+      this.queryStringFromExpress.page * 1 || 1;
+    const limit =
+      this.queryStringFromExpress.limit * 1 ||
+      100;
     const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
+    this.queryForMongoose = this.queryForMongoose
+      .skip(skip)
+      .limit(limit);
 
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
+    return this;
+  }
+}
 
-      if (skip >= numTours) {
-        throw new Error(
-          'This page does not exist'
-        );
-      }
-    }
-
+exports.getAllTours = async (req, res) => {
+  try {
     // Execute Query
-    const tours = await query;
+    const apiFeatures = new APIFeatures(
+      Tour.find(), // get all records in Tour in Mongoose in an object before we do any filtering based on route params
+      req.query // query coming from routes in Express
+    )
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    // chaining methods only work if we return "this" object at the end of each method
+    const tours = await apiFeatures.queryForMongoose;
 
     res.status(200).json({
       status: 'Success',
