@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -7,6 +8,7 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'], // error string, also called as validator
       unique: true
     },
+    slug: String,
     duration: {
       type: Number,
       required: [
@@ -81,6 +83,22 @@ tourSchema
   .get(function () {
     return this.duration / 7; // this is pointing to the current document
   });
+
+// DOCUMENT MIDDLEWARE: runs before .save() and .create() commands but not on .insertMany()
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true }); // this refers to the currently processed documents
+  next();
+});
+
+tourSchema.pre('save', function (next) {
+  console.log('Will save document...');
+  next();
+});
+
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next();
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
