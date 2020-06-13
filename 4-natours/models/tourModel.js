@@ -68,7 +68,11 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false // preventing this field from showing in API response
     },
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     toJSON: { virtuals: true }, // when data output as JSON
@@ -97,6 +101,29 @@ tourSchema.pre('save', function (next) {
 
 tourSchema.post('save', function (doc, next) {
   console.log(doc);
+  next();
+});
+
+// QUERY MIDDLEWARE:
+// tourSchema.pre('find', function (next) {
+tourSchema.pre(/^find/, function (next) {
+  // regular expression /^find/: all the routes that executes Mongoose query starting with "find", e.g. find, findOne
+  // e.g. we want to hide certain tours reserved for internal stakeholders
+  this.find({ secretTour: { $ne: true } }); // 'this' keyword refers to current query
+  this.start = Date.now(); // start our clock counter
+  console.log(
+    `Start of our Find query: ${this.start}`
+  );
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(
+    `Find query took: ${
+      Date.now() - this.start
+    } milliseconds`
+  );
+  // console.log(docs);
   next();
 });
 
