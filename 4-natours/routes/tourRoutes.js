@@ -6,7 +6,8 @@ const {
   updateOneTour,
   deleteOneTour,
   aliasTopTours,
-  getTourStats
+  getTourStats,
+  getMonthlyPlan
 } = require('../controllers/tourController');
 
 const router = express.Router();
@@ -22,6 +23,10 @@ router
 // then in POSTMAN, we will run GET 127.0.0.1:3000/api/v1/tours/top-5-cheap
 
 router.route('/tour-stats').get(getTourStats);
+
+router
+  .route('/monthly-plan/:year')
+  .get(getMonthlyPlan);
 
 router
   .route('/')

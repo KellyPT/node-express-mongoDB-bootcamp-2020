@@ -172,3 +172,58 @@ exports.getTourStats = async (req, res) => {
     });
   }
 };
+
+// example: get number of tours and name of tours in each month of a particular year based on startDates
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates' // create a new separate document for each of startDate in the startDates array
+      },
+      {
+        $match: {
+          // narrow down the date range
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`)
+          }
+        } // only select document that match this date range
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' }, // group by months of startDates
+          totalTours: { $sum: 1 }, // add 1 to each document, i.e. count number of tours in each month
+          tours: { $push: '$name' } // create an array of all tours in each month, adding only tour's name
+        }
+      },
+      {
+        $sort: { totalTours: -1 }
+      },
+      {
+        $addFields: { month: '$_id' } // create a new field 'month' that take the value of _id
+      },
+      {
+        $project: {
+          _id: 0 // hide this field _id, put a 1 and it will show up
+        }
+      },
+      {
+        $limit: 12 // show only 6 outputs
+      }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan // es6 syntax if key-value has the same string
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: err
+    });
+  }
+};
