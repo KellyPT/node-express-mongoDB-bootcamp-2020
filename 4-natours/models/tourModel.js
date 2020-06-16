@@ -6,7 +6,16 @@ const tourSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'A tour must have a name'], // error string, also called as validator
-      unique: true
+      unique: true,
+      trim: true,
+      maxlength: [
+        40,
+        'A tour name must have less or equal than 40 characters'
+      ],
+      minlength: [
+        10,
+        'A tour name must have more or equal than 10 characters'
+      ]
     },
     slug: String,
     duration: {
@@ -124,6 +133,20 @@ tourSchema.post(/^find/, function (docs, next) {
     } milliseconds`
   );
   // console.log(docs);
+  next();
+});
+
+// AGGREGATION MIDDLEWARE
+// example: filter out secret tours from mongoose aggregation
+tourSchema.pre('aggregate', function (next) {
+  // remember Tour.aggregate() take an array of grouping/matching elements
+  this.pipeline().unshift({
+    $match: { secretTour: { $ne: true } }
+  });
+  console.log(
+    'this refers to Aggregate',
+    this.pipeline()
+  ); // this point to the aggregation object
   next();
 });
 

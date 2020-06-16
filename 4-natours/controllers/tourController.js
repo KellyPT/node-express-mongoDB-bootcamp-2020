@@ -98,7 +98,7 @@ exports.updateOneTour = async (req, res) => {
       req.body,
       {
         new: true, // return the new updated document
-        runValidators: true
+        runValidators: true // will run validators in model
       }
     );
     res.status(200).json({
@@ -153,10 +153,10 @@ exports.getTourStats = async (req, res) => {
       },
       {
         $sort: { avgPrice: 1 }
-      },
-      {
-        $match: { _id: { $ne: 'EASY' } } // $ne: not equal
       }
+      // {
+      //   $match: { _id: { $ne: 'EASY' } } // $ne: not equal
+      // }
     ]);
 
     res.status(200).json({
