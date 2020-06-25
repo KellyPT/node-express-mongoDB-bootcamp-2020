@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -46,22 +47,16 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.all('*', (req, res, next) => {
-  // res.status(404).json({
-  //   status: 'fail',
-  //   message: `Can't find ${req.originalUrl} on this server!`
-  // });
-
-  const err = new Error(
-    `Can't find ${req.originalUrl} on this server!`
+  next(
+    new AppError(
+      `Can't find ${req.originalUrl} on this server!`,
+      404
+    )
   );
-  err.status = 'fail';
-  err.statusCode = 404;
-  // this Error object will be read by error-handling middleware
-
-  next(err); // if we pass a parameter into next, Express will assume this param is an error and will skip all other middlwares in middleware stacks, and send that error to our global error handling middleware
 });
 
 app.use((err, req, res, next) => {
+  console.log(err.stack); // show use where the error happened
   err.statusCode = err.statusCode || 500; // handle errors intentionally created by developers and errors coming from other parts of Node system
   err.status = err.status || 'error';
   res.status(err.statusCode).json({
