@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apifeatures');
+const catchAsyncError = require('../utils/catchAsyncError');
 
 // const tours = JSON.parse(
 //   fs.readFileSync(
@@ -18,8 +19,8 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
+exports.getAllTours = catchAsyncError(
+  async (req, res, next) => {
     // Execute Query
     const apiFeatures = new APIFeatures(
       Tour.find(), // get all records in Tour in Mongoose in an object before we do any filtering based on route params
@@ -39,16 +40,11 @@ exports.getAllTours = async (req, res) => {
         tours: tours
       }
     });
-  } catch (err) {
-    res.status(500).json({
-      status: 'failed',
-      message: 'Cannot connect to DB'
-    });
   }
-};
+);
 
-exports.getOneTour = async (req, res) => {
-  try {
+exports.getOneTour = catchAsyncError(
+  async (req, res, next) => {
     const tour = await Tour.findById(
       req.params.id
     );
@@ -62,19 +58,11 @@ exports.getOneTour = async (req, res) => {
         tour: tour
       }
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: 'Cannot find tour'
-    });
   }
-};
+);
 
-exports.createOneTour = async (req, res) => {
-  try {
-    // equivalent code:
-    // const newTour = new Tour({});
-    // newTour.save();
+exports.createOneTour = catchAsyncError(
+  async (req, res, next) => {
     const newTour = await Tour.create(req.body);
 
     res.status(201).json({
@@ -83,16 +71,11 @@ exports.createOneTour = async (req, res) => {
         tour: newTour
       }
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'failed',
-      message: err
-    });
   }
-};
+);
 
-exports.updateOneTour = async (req, res) => {
-  try {
+exports.updateOneTour = catchAsyncError(
+  async (req, res, next) => {
     const updatedTour = await Tour.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -107,30 +90,20 @@ exports.updateOneTour = async (req, res) => {
         tour: updatedTour
       }
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    });
   }
-};
+);
 
-exports.deleteOneTour = async (req, res) => {
-  try {
+exports.deleteOneTour = catchAsyncError(
+  async (req, res, next) => {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success'
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'success',
-      message: 'Cannot delete this tour'
-    });
   }
-};
+);
 
-exports.getTourStats = async (req, res) => {
-  try {
+exports.getTourStats = catchAsyncError(
+  async (req, res, next) => {
     const stats = await Tour.aggregate([
       {
         $match: { ratingsAverage: { $gte: 4.5 } }
@@ -165,17 +138,12 @@ exports.getTourStats = async (req, res) => {
         stats: stats
       }
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    });
   }
-};
+);
 
 // example: get number of tours and name of tours in each month of a particular year based on startDates
-exports.getMonthlyPlan = async (req, res) => {
-  try {
+exports.getMonthlyPlan = catchAsyncError(
+  async (req, res, next) => {
     const year = req.params.year * 1;
 
     const plan = await Tour.aggregate([
@@ -220,10 +188,5 @@ exports.getMonthlyPlan = async (req, res) => {
         plan // es6 syntax if key-value has the same string
       }
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    });
   }
-};
+);
