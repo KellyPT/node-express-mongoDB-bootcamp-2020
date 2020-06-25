@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -55,14 +56,6 @@ app.all('*', (req, res, next) => {
   );
 });
 
-app.use((err, req, res, next) => {
-  console.log(err.stack); // show use where the error happened
-  err.statusCode = err.statusCode || 500; // handle errors intentionally created by developers and errors coming from other parts of Node system
-  err.status = err.status || 'error';
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;
