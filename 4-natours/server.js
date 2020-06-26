@@ -1,6 +1,16 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+// GLOBAL UNCAUGHT EXCEPTION HANNDLER: handle sync errors
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION');
+  console.log(err.name, err.message);
+  server.close(() => {
+    console.log('Shutting down...');
+    process.exit(1);
+  });
+});
+
 dotenv.config({ path: './config.env' });
 const app = require('./app');
 
@@ -44,9 +54,12 @@ const server = app.listen(port, () => {
 });
 
 // Global rejection handler:
+// handle async errors
 process.on('unhandledRejection', (err) => {
+  console.log('UNHANDLED REJECTION');
   console.log(err.name, err.message);
   server.close(() => {
+    console.log('Shutting down...');
     process.exit(1);
   });
 });
