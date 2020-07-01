@@ -6,8 +6,13 @@ const {
   updateOneUser,
   removeOneUser
 } = require('../controllers/userController');
+const {
+  signUp
+} = require('../controllers/authController');
 
 const router = express.Router();
+
+router.post('/signup', signUp);
 
 router
   .route('/')
