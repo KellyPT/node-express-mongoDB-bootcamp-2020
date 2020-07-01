@@ -56,6 +56,18 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// instance method: available on all documents of a certain collection
+userSchema.methods.correctPassword = async function (
+  candidatePassword, // not hashed
+  userPassword // already hased in our DB
+) {
+  // we cant use this.password because this will point to the current document, which don't have access to password field
+  return await bcrypt.compare(
+    candidatePassword,
+    userPassword
+  );
+};
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
