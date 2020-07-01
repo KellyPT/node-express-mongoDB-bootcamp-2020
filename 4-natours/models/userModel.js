@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -26,15 +27,32 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [
       true,
-      'A user must re-enter the password to confirm'
+      'Please re-enter the password to confirm'
     ],
     validate: {
+      // this only works on CREATE or SAVE!!!
       validator: function (val) {
         return val === this.password;
       },
       message: "Password doesn't match"
     }
   }
+});
+
+// encryption should happen after we receive the password and before it's actually persisted to the database
+userSchema.pre('save', async function (next) {
+  // only run this function if password was actually modified
+  if (!this.isModified('password')) {
+    return next();
+  }
+  // encrypt the password with the cost of 12
+  this.password = await bcrypt.hash(
+    this.password,
+    16
+  );
+  // erase the passwordConfirm because we only need it once when user signs up
+  this.passwordConfirm = undefined;
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
