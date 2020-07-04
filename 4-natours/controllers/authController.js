@@ -75,3 +75,14 @@ exports.logIn = catchAsyncError(
       .json({ status: 'success', token });
   }
 );
+
+exports.protect = catchAsyncError(
+  async (req, res, next) => {
+    // 1- get JWT token and check availability
+    // 2- verify JWT token
+    // 3- check if user still exists
+    // 4- check if user changed password after JWT was issued
+
+    next();
+  }
+);

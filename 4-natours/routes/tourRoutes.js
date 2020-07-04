@@ -1,14 +1,6 @@
 const express = require('express');
-const {
-  getAllTours,
-  createOneTour,
-  getOneTour,
-  updateOneTour,
-  deleteOneTour,
-  aliasTopTours,
-  getTourStats,
-  getMonthlyPlan
-} = require('../controllers/tourController');
+const tourController = require('../controllers/tourController');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -19,24 +11,32 @@ const router = express.Router();
 
 router
   .route('/top-5-cheap')
-  .get(aliasTopTours, getAllTours);
+  .get(
+    tourController.aliasTopTours,
+    tourController.getAllTours
+  );
 // then in POSTMAN, we will run GET 127.0.0.1:3000/api/v1/tours/top-5-cheap
 
-router.route('/tour-stats').get(getTourStats);
+router
+  .route('/tour-stats')
+  .get(tourController.getTourStats);
 
 router
   .route('/monthly-plan/:year')
-  .get(getMonthlyPlan);
+  .get(tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(getAllTours)
-  .post(createOneTour); //route handler for createTour
+  .get(
+    authController.protect,
+    tourController.getAllTours
+  )
+  .post(tourController.createOneTour); //route handler for createTour
 
 router
   .route('/:id')
-  .get(getOneTour)
-  .patch(updateOneTour)
-  .delete(deleteOneTour);
+  .get(tourController.getOneTour)
+  .patch(tourController.updateOneTour)
+  .delete(tourController.deleteOneTour);
 
 module.exports = router;
